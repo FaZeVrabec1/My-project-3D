@@ -13,11 +13,8 @@ public class GoldPickUp : MonoBehaviour
         if (other.tag == "Player")
         {
             SoundManager.instance.PlaySound(CashMoney);
-
             FindObjectOfType<GameManager>().AddGold(value);
-
             Instantiate(pickUpEffect, transform.position, transform.rotation);
-
             Destroy(gameObject);
         }
     }

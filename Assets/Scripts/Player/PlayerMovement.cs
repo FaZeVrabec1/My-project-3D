@@ -4,22 +4,39 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("Movement settings")]
     public float speed;
     public float jump;
     public CharacterController controller;
+    public AudioClip jumping;
+    public int ExtraJumps;
+    private int jumpCounter;
 
+
+    [Header("Coyote Time")]
+    public float coyoteTime; 
+    private float coyoteCounter;
+
+    [Header("Movement & Gravity")]
     public Vector3 moveDirection;
     public float gravityScale;
 
+    [Header("Animator")]
     public Animator anim;
 
     private float horizontalInput;
 
+    [Header("Knockback Settings")]
     public float knockbackForce;
     public float knockbackTime;
     private float knockbackCounter;
 
-    public AudioClip jumping;
+    [Header("Misc Settings")]
+    public bool drawGizmos;
+    public LayerMask groundLayer;
+    public Transform PT;
+    public Transform TeleportPos;
+
 
     void Start()
     {
@@ -45,21 +62,50 @@ public class PlayerMovement : MonoBehaviour
 
             if (controller.isGrounded)
             {
-                if (Input.GetButtonDown("Jump"))
+                jumpCounter = ExtraJumps;
+                coyoteCounter = coyoteTime;
+            }
+            else
+            {
+                coyoteCounter -= Time.deltaTime;
+            }
+
+
+            if (Input.GetButtonDown("Jump"))
+            {
+                if (controller.isGrounded)
                 {
+                    
                     moveDirection.y = jump;
                     SoundManager.instance.PlaySound(jumping);
                 }
-
-            }
-
-            
-
+                else
+                {
+                    if (coyoteCounter > 0)
+                    {
+                        moveDirection.y = jump;
+                        SoundManager.instance.PlaySound(jumping);
+                    }
+                    else
+                    {
+                        if (jumpCounter > 0)
+                        {
+                            moveDirection.y = jump;
+                            SoundManager.instance.PlaySound(jumping);
+                            jumpCounter--;
+                        }
+                    }
+                }
+                coyoteCounter = 0;
+            } 
         }
         else
         {
             knockbackCounter -= Time.deltaTime;
         }
+
+
+
 
         //Flip player when facing left/right. (messes with setting player position)
 
@@ -80,19 +126,6 @@ public class PlayerMovement : MonoBehaviour
         anim.SetBool("isGrounded", controller.isGrounded);
         anim.SetFloat("Speed", (Mathf.Abs(Input.GetAxis("Horizontal"))));
 
-
-        //Detect LMB (Will be used later for attacking)
-        if (Input.GetMouseButton(0))
-        {
-
-            //transform.position = new Vector3(1f, 1.5f, 1f);
-            //SetPlayerPosition(new Vector3(1f, 1.5f, 1f));
-
-            
-
-            //moveDirection = new Vector3(0f, 10f, 0f);
-        }
-
     }
 
     public void Knockback(Vector3 direction)
@@ -105,11 +138,22 @@ public class PlayerMovement : MonoBehaviour
 
     public void SetPlayerPosition(Vector3 position)
     {
-        transform.position = new Vector3(1f, 1.5f, 1f);
+        PT.position = position;
     }
 
-
-    
-
+    private void OnDrawGizmos()
+    {
+        if (drawGizmos)
+        {
+            if (controller.isGrounded)
+            {
+                Debug.Log("Grounded");
+            }
+            else
+            {
+                Debug.Log("isn't grounded");
+            }
+        }
+    }
 
 }

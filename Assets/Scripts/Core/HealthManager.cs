@@ -31,6 +31,7 @@ public class HealthManager : MonoBehaviour
     public float fadeSpeed;
     public float waitForFade;
     public Transform respawnPoint;
+    public bool dead;
 
     [Header("Sounds and Effects")]
     public AudioClip Hurt;
@@ -103,7 +104,8 @@ public class HealthManager : MonoBehaviour
 
             if (currentHealth <= 0)
             {
-               Respawn();
+                
+                Respawn();
             }
             else
             {
@@ -158,7 +160,7 @@ public class HealthManager : MonoBehaviour
 
     public void Respawn()
     {
-
+        
         if (!isRespawning)
         {
             StartCoroutine(RespawnCo());
@@ -170,13 +172,20 @@ public class HealthManager : MonoBehaviour
 
     IEnumerator RespawnCo()
     {
+        dead = true;
         //Set isRespawning to true
         isRespawning = true;
         SoundManager.instance.PlaySound(Dead);
 
+
         //Make the player invisible and wait before moving him and fade screen to black
-        thePlayer.gameObject.SetActive(false);
+
+        thePlayer.enabled = false;
+        //thePlayerAttack.enabled = false;
+        playerRenderer.enabled = false;
         Instantiate(DeathEffect, thePlayer.transform.position, thePlayer.transform.rotation);
+        //thePlayer.gameObject.SetActive(false);
+
 
         yield return new WaitForSeconds(RespawnLenghth);
 
@@ -195,21 +204,23 @@ public class HealthManager : MonoBehaviour
         thePlayer.enabled = false;
         yield return new WaitForSeconds(0.1f);
         thePlayer.enabled = true;
+        //thePlayerAttack.enabled = true;
 
         //reset health and velocity
         currentHealth = maxHealth;
         thePlayer.moveDirection = new Vector3(0, 0, 0);
+        
 
         //Give player invincibility after respawning
         invincibilityCounter = invincibilityLenghth;
         playerRenderer.enabled = false;
         flashCounter = flashLenght;
+        dead = false;
 
 
 
 
 
-        
     }
 
 }

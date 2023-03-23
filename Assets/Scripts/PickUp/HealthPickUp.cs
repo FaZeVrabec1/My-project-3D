@@ -7,6 +7,7 @@ public class HealthPickUp : MonoBehaviour
 
     public int value;
     public GameObject pickUpEffect;
+    public AudioClip Heal;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -14,10 +15,9 @@ public class HealthPickUp : MonoBehaviour
         {
             if (FindObjectOfType<HealthManager>().currentHealth != FindObjectOfType<HealthManager>().maxHealth)
             {
+                SoundManager.instance.PlaySound(Heal);
                 FindObjectOfType<HealthManager>().HealPlayer(value);
-
                 Instantiate(pickUpEffect, transform.position, transform.rotation);
-
                 Destroy(gameObject);
             }
             
